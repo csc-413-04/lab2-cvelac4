@@ -1,7 +1,37 @@
 package com.company;
 
-class MatrixThreads {
+class MatrixThreads implements Runnable {
 
+
+    int start;
+    int stop;
+    int[][] a;
+    int[][] b;
+    int[][] d;
+
+    public MatrixThreads(int[][] _a, int[][] _b, int[][] _d, int _start, int _stop) {
+        this.a = _a;
+        this.b = _b;
+        this.d = _d;
+        start = _start;
+        stop = _stop;
+
+    }
+
+    public void run() {
+
+        int size = 1000;
+
+        for (int i = start; i < stop; i++) {
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
+                    d[i][j] = d[i][j] + (a[i][k] * b[k][j]);
+                }
+            }
+        }
+
+
+    }
 }
 
 public class Main {
@@ -66,7 +96,23 @@ public class Main {
         startTime = System.nanoTime();
         // filler, make either a new class that extends thread, or have this one extend thread
         // figure out how to split work up into at least 2 more threads
-        int d[][] = multiplyParallel(a, b);
+
+        int d[][] = new int[size][size];
+
+
+        MatrixThreads m1 = new MatrixThreads(a, b, d, 0, 500);
+        MatrixThreads m2 = new MatrixThreads(a, b, d, 500, 1000);
+        Thread t1 = new Thread(m1);
+
+        t1.start();
+
+        m2.run();
+
+        try {
+            t1.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         endTime = System.nanoTime();
         long parallelTime = endTime - startTime;
         System.out.println("Parallel Time " + parallelTime + " ns");
